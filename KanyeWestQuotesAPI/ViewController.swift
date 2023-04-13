@@ -17,22 +17,23 @@ class ViewController: UIViewController {
 
 
     @IBAction func randomQuoteButton(_ sender: Any) {
-        
-        let url = URL(string: "https://api.kanye.rest/")!
-        let task = URLSession.shared.dataTask(with: url){ (Data: Data?, response: URLResponse?,error: Error?) in
-            if let error = error{
-                print(error)
-                return
-            }
-            let json = try! JSONSerialization.jsonObject(with: Data!, options: []) as! [String: String]
-            DispatchQueue.main.async {
-                self.quoteLabel.text = json["qoute"]
-
-            }
-        }
-        
-        task.resume()
-        
-    }
+        if let url = URL(string: "https://api.kanye.rest/") {
+            URLSession.shared.dataTask(with: url) { data, response, error in
+                if let data = data {
+                    do {
+                        let json = try JSONSerialization.jsonObject(with: data, options: [])
+                        if let dict = json as? [String: Any], let quote = dict["quote"] as? String {
+                            DispatchQueue.main.async {
+                                self.quoteLabel.text = quote
+                            }
+                        }
+                    } catch {
+                        print(error.localizedDescription)
+                    }
+                }
+            }.resume()
+            
+            
+        }}
 }
 
